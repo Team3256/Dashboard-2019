@@ -123,8 +123,8 @@ export default {
 }
 
 .camera-view {
-  width: calc(2.8em * 16);
-  height: calc(2.8em * 9);
+  width: calc(3.5em * 16);
+  height: calc(3.5em * 9);
   background-color: var(--light-two);
   border-radius: 8px;
   display: flex;

@@ -66,7 +66,7 @@ const ntConnect = () => {
         ntConnect();
       }, 1000);
     }
-  }, "localhost");
+  }, "10.78.0.152");
 
   ntListener = client.addListener((key, val, type, id) => {
     //console.log({ key, val, type, id });
@@ -82,14 +82,15 @@ function createWindow() {
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    minWidth: 1465,
-    minHeight: 745,
-    width: 1465,
-    height: 745,
+    minWidth: 1920,
+    minHeight: 840,
+    width: 1920,
+    height: 840,
     useContentSize: true,
     darkTheme: true,
     devTools: false,
-    frame: false
+    frame: false,
+    resizable: false
   });
 
   mainWindow.setMenu(null);
