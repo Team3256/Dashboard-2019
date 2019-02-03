@@ -35,6 +35,8 @@ export default {
           janus.addPlugin(streaming).then(() => {
             console.info("plugin added", janus);
 
+            console.log(streaming);
+
             peerConnection.onicecandidate = event => {
               console.log("@onicecandidate", event);
               if (!event.candidate || !event.candidate.candidate) {
@@ -95,7 +97,7 @@ export default {
                 .then(() => {
                   peerConnection
                     .createAnswer({
-                      offerToReceiveAudio: true,
+                      offerToReceiveAudio: false,
                       offerToReceiveVideo: true
                     })
                     .then(answer => {
@@ -103,6 +105,8 @@ export default {
                         streaming.start(answer).then(({ body, json }) => {
                           this.bitrateInterval = setInterval(() => {
                             // @TODO
+                            var bitrate = peerConnection.getBitrate();
+                            console.log(bitrate);
                             peerConnection.getStats().then(stats => {
                               console.info(Array.from(stats.entries()));
                             });
