@@ -66,7 +66,7 @@ const ntConnect = () => {
         ntConnect();
       }, 1000);
     }
-  }, "10.78.0.152");
+  }, "localhost");
 
   ntListener = client.addListener((key, val, type, id) => {
     //console.log({ key, val, type, id });

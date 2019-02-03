@@ -7,18 +7,28 @@
     </WindowFrame>
     <div class="camera-container">
       <div class="camera-view">
-        <p>OFFLINE</p>
+        <camera-stream
+          :config="{ url: 'ws://192.168.7.247:8188' }"
+          :stream="2"
+          @status="status = $event"
+        />
+        <p class="camera-view-status">{{ status }}</p>
       </div>
       <div class="camera-view">
-        <p>OFFLINE</p>
+        <camera-stream
+          :config="{ url: 'ws://192.168.7.252:8188' }"
+          :stream="2"
+          @status="status = $event"
+        />
+        <p class="camera-view-status">{{ status }}</p>
       </div>
     </div>
-    {{connected ? 'nut' : 'oof'}}
   </div>
 </template>
 
 <script>
 import Modal from "./Modal.vue";
+import CameraStream from '@/components/CameraStream';
 import WindowFrame from '@/components/WindowFrame';
 import WindowFrameButton from '@/components/WindowFrameButton';
 import { remote, ipcRenderer } from "electron";
@@ -29,11 +39,13 @@ export default {
   components: {
     Modal,
     WindowFrame,
-    WindowFrameButton
+    WindowFrameButton,
+    CameraStream
   },
   data() {
     return {
-      modalVisible: false
+      modalVisible: false,
+      status: 'init'
     };
   },
   computed: mapState({
@@ -131,8 +143,17 @@ export default {
   justify-content: center;
   align-items: center;
   overflow: hidden;
+  position: relative;
 }
 .camera-view p {
   font-size: 36px;
+}
+.camera-view-status {
+  font-size: 18px !important;
+  position: absolute;
+  left: 10px;
+  bottom: 5px;
+  z-index: 2;
+  opacity: 0.25;
 }
 </style>
