@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import WindowFrameButton from '@/components/WindowFrameButton';
+import WindowFrameButton from "@/components/WindowFrameButton";
 import CloseIcon from "../assets/close.svg";
 import { remote } from "electron";
 export default {
@@ -62,6 +62,7 @@ export default {
   background-color: var(--dark-two);
   -webkit-app-region: drag;
   display: flex;
+  z-index: 100 !important;
 }
 .close-button {
   display: flex;

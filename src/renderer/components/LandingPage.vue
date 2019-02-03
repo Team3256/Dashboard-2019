@@ -10,17 +10,17 @@
         <camera-stream
           :config="{ url: 'ws://192.168.7.247:8188' }"
           :stream="2"
-          @status="status = $event"
+          @status="statusA = $event"
         />
-        <p class="camera-view-status">{{ status }}</p>
+        <p class="camera-view-status">{{ statusA }}</p>
       </div>
       <div class="camera-view">
         <camera-stream
-          :config="{ url: 'ws://192.168.7.252:8188' }"
+          :config="{ url: 'ws://192.168.7.247:8188' }"
           :stream="2"
-          @status="status = $event"
+          @status="statusB = $event"
         />
-        <p class="camera-view-status">{{ status }}</p>
+        <p class="camera-view-status">{{ statusB }}</p>
       </div>
     </div>
   </div>
@@ -28,11 +28,11 @@
 
 <script>
 import Modal from "./Modal.vue";
-import CameraStream from '@/components/CameraStream';
-import WindowFrame from '@/components/WindowFrame';
-import WindowFrameButton from '@/components/WindowFrameButton';
+import CameraStream from "@/components/CameraStream";
+import WindowFrame from "@/components/WindowFrame";
+import WindowFrameButton from "@/components/WindowFrameButton";
 import { remote, ipcRenderer } from "electron";
-import { mapState } from 'vuex';
+import { mapState } from "vuex";
 
 export default {
   name: "landing-page",
@@ -45,7 +45,8 @@ export default {
   data() {
     return {
       modalVisible: false,
-      status: 'init'
+      statusA: "null",
+      statusB: "null"
     };
   },
   computed: mapState({
@@ -65,7 +66,7 @@ export default {
         new MenuItem({
           label: "Open Interactive Console",
           click() {
-            ipcRenderer.send('openInteractiveConsole');
+            ipcRenderer.send("openInteractiveConsole");
           }
         })
       );
@@ -74,7 +75,7 @@ export default {
         new MenuItem({
           label: "Manual Reconnect",
           click() {
-            ipcRenderer.send('reconnectNt');
+            ipcRenderer.send("reconnectNt");
           }
         })
       );
@@ -108,8 +109,7 @@ export default {
       menu.popup(remote.getCurrentWindow());
     }
   },
-  mounted() {
-  }
+  mounted() {}
 };
 </script>
 

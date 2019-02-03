@@ -6,8 +6,8 @@
 </template>
 
 <script>
-import DisconnectedOverlay from '@/components/DisconnectedOverlay';
-import { mapState } from 'vuex';
+import DisconnectedOverlay from "@/components/DisconnectedOverlay";
+import { mapState } from "vuex";
 export default {
   name: "dashboard-2019",
   components: {
@@ -36,8 +36,9 @@ body {
   width: 100%;
   font-family: "Source Sans Pro", sans-serif;
   background-color: var(--light-one);
+  overflow: hidden;
+  user-select: none;
 }
-
 #app {
   flex: 1;
   display: flex;
