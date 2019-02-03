@@ -64,6 +64,7 @@ export default {
               videoElement.play();
 
               if (this.bufferingInterval == undefined) {
+                let startBuffer = 0;
                 let lastPosition = 0;
                 this.bufferintInterval = setInterval(() => {
                   if (
@@ -71,6 +72,10 @@ export default {
                     !videoElement.paused
                   ) {
                     this.$emit("status", "buffering");
+                    if (startBuffer >= 500 * 4) {
+                      this.beforeDestroy();
+                      this.connect();
+                    }
                   } else {
                     this.$emit("status", "playing");
                   }
