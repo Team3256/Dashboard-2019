@@ -125,6 +125,7 @@ export default {
           this.$emit("status", err.message);
           clearInterval(this.bitrateInterval);
           clearInterval(this.bufferingInterval);
+          this.streaming.destroy();
           setTimeout(() => {
             this.connect();
           }, 1000);
