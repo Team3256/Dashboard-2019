@@ -1,11 +1,24 @@
 <template>
   <div id="wrapper">
-    <Modal :visible="modalVisible"/>
+    <Modal
+      :visible="modalVisible"
+      :showClose="true"
+      @close="modalVisible = false"
+      title="Set NetworkTable Value"
+    >
+      <template slot="content">
+        <p>Hello</p>
+      </template>
+      <template slot="actions">
+        <Button>Set</Button>
+      </template>
+    </Modal>
     <WindowFrame>
       <WindowFrameButton @click="dashClicked">SmartDashboard</WindowFrameButton>
       <WindowFrameButton @click="purePursuitClicked">PurePursuit</WindowFrameButton>
+      <WindowFrameButton @click="cameraClicked">Camera</WindowFrameButton>
     </WindowFrame>
-    <div class="camera-container">
+    <div class="camera-container" v-if="showCameras">
       <div class="camera-view">
         <camera-stream
           :config="{ url: 'ws://192.168.7.247:8188' }"
@@ -31,6 +44,7 @@ import Modal from "./Modal.vue";
 import CameraStream from "@/components/CameraStream";
 import WindowFrame from "@/components/WindowFrame";
 import WindowFrameButton from "@/components/WindowFrameButton";
+import Button from "@/components/Button";
 import { remote, ipcRenderer } from "electron";
 import { mapState } from "vuex";
 
@@ -40,13 +54,15 @@ export default {
     Modal,
     WindowFrame,
     WindowFrameButton,
+    Button,
     CameraStream
   },
   data() {
     return {
       modalVisible: false,
-      statusA: "null",
-      statusB: "null"
+      statusA: "not found",
+      statusB: "not found",
+      showCameras: true
     };
   },
   computed: mapState({
@@ -68,6 +84,13 @@ export default {
           click() {
             ipcRenderer.send("openInteractiveConsole");
           }
+        })
+      );
+
+      menu.append(
+        new MenuItem({
+          label: "Set NetworkTables Value",
+          click: () => (this.modalVisible = true)
         })
       );
 
@@ -107,6 +130,26 @@ export default {
       );
 
       menu.popup(remote.getCurrentWindow());
+    },
+    cameraClicked() {
+      const { Menu, MenuItem } = remote;
+
+      const menu = new Menu();
+
+      // Build menu one item at a time, unlike
+      menu.append(
+        new MenuItem({
+          label: "Reload Cameras",
+          click: () => {
+            this.showCameras = false;
+            setTimeout(() => {
+              this.showCameras = true;
+            }, 1000);
+          }
+        })
+      );
+
+      menu.popup(remote.getCurrentWindow());
     }
   },
   mounted() {}
@@ -127,7 +170,7 @@ export default {
 }
 
 .camera-container {
-  height: 80%;
+  height: 70%;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -135,8 +178,8 @@ export default {
 }
 
 .camera-view {
-  width: calc(3.5em * 16);
-  height: calc(3.5em * 9);
+  width: calc(3.4rem * 16);
+  height: calc(3.4rem * 9);
   background-color: var(--light-two);
   border-radius: 8px;
   display: flex;

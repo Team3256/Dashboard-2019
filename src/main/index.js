@@ -19,8 +19,10 @@ ipcMain.on("openInteractiveConsole", function(e, data) {
       ? "http://localhost:9080/#/console"
       : `file://${__dirname}/index.html#console`;
   consoleWin = new BrowserWindow({
-    width: 400,
-    height: 320,
+    width: 1000,
+    height: 600,
+    minWidth: 1000,
+    minHeight: 600,
     frame: false,
     webPreferences: { webSecurity: false }
   });
@@ -66,7 +68,7 @@ const ntConnect = () => {
         ntConnect();
       }, 1000);
     }
-  }, "192.168.7.91");
+  }, "172.16.100.200");
 
   ntListener = client.addListener((key, val, type, id) => {
     //console.log({ key, val, type, id });

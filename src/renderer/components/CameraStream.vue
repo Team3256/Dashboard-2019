@@ -27,14 +27,6 @@ export default {
 
       this.$emit("connecting", "init");
 
-      this.bitrateInterval = setInterval(() => {
-        // @TODO
-        peerConnection.getStats().then(stats => {
-          console.info(Array.from(stats.entries()));
-        });
-        this.$emit("bitrate", 0);
-      }, 1000);
-
       const { janus, streaming, peerConnection } = this;
 
       janus
@@ -73,7 +65,8 @@ export default {
                   ) {
                     this.$emit("status", "buffering");
                     if (startBuffer >= 500 * 4) {
-                      this.beforeDestroy();
+                      clearInterval(this.bitrateInterval);
+                      clearInterval(this.bufferingInterval);
                       this.connect();
                     }
                   } else {
@@ -108,6 +101,13 @@ export default {
                     .then(answer => {
                       peerConnection.setLocalDescription(answer).then(() => {
                         streaming.start(answer).then(({ body, json }) => {
+                          this.bitrateInterval = setInterval(() => {
+                            // @TODO
+                            peerConnection.getStats().then(stats => {
+                              console.info(Array.from(stats.entries()));
+                            });
+                            this.$emit("bitrate", 0);
+                          }, 1000);
                           this.$emit("status", "connected");
                         });
                       });
@@ -118,10 +118,12 @@ export default {
         })
         .catch(err => {
           console.log("error", err);
-          this.$emit("status", "searching");
+          this.$emit("status", err.message);
+          clearInterval(this.bitrateInterval);
+          clearInterval(this.bufferingInterval);
           setTimeout(() => {
             this.connect();
-          }, 2500);
+          }, 1000);
         });
     }
   },

@@ -6,17 +6,15 @@
 </template>
 
 <script>
-
-
 export default {
   props: ["show"]
-}
+};
 </script>
 
 <style>
 .disconnected-overlay {
   position: absolute;
-  z-index: 100;
+  z-index: 5;
   top: 0;
   bottom: 0;
   left: 0;

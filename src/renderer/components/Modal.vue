@@ -2,16 +2,16 @@
   <div class="modal-container" v-bind:class="{ 'modal-container-hidden': !visible }">
     <div class="modal-body" v-bind:class="{ 'modal-body-hidden': !visible }">
       <div class="modal-title">
-        <h2>3256 Dashboard Beta</h2>
-        <button v-if="close" @click="close" class="modal-close">
+        <h2>{{ title }}</h2>
+        <button v-if="showClose" @click="$emit('close')" class="modal-close">
           <CloseIcon/>
         </button>
       </div>
       <div class="modal-content">
-        <p>this dashboard is in beta and will break a lot</p>
+        <slot name="content"></slot>
       </div>
       <div class="modal-actions">
-        <Button @click="visible = false">Close</Button>
+        <slot name="actions"></slot>
       </div>
     </div>
   </div>
@@ -21,7 +21,7 @@
 import CloseIcon from "../assets/close.svg";
 import Button from "./Button.vue";
 export default {
-  props: ["visible", "close"],
+  props: ["visible", "title", "showClose"],
   components: {
     CloseIcon,
     Button
@@ -32,7 +32,7 @@ export default {
 <style>
 .modal-container {
   position: absolute;
-  z-index: 100;
+  z-index: 4;
   top: 0;
   bottom: 0;
   left: 0;

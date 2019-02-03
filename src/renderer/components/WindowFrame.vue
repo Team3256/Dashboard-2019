@@ -62,7 +62,7 @@ export default {
   background-color: var(--dark-two);
   -webkit-app-region: drag;
   display: flex;
-  z-index: 100 !important;
+  z-index: 6;
 }
 .close-button {
   display: flex;
