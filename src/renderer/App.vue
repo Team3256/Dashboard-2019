@@ -34,7 +34,7 @@ body {
   height: 100vh;
   max-height: 100vh;
   width: 100%;
-  font-family: "Source Sans Pro", sans-serif;
+  font-family: sans-serif;
   background-color: var(--light-one);
   overflow: hidden;
   user-select: none;

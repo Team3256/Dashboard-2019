@@ -16,11 +16,15 @@ export default {
     };
   },
   beforeDestroy() {
-    clearInterval(this.bitrateInterval);
     clearInterval(this.bufferingInterval);
   },
   methods: {
     connect() {
+      if (this.streaming) {
+        this.streaming.destroy();
+        clearInterval(this.bufferingInterval);
+      }
+
       this.janus = this.janus = new Janus(this.config, console);
       this.streaming = new StreamingJanusPlugin(console, false);
       this.peerConnection = new RTCPeerConnection();
@@ -38,7 +42,6 @@ export default {
             console.log(streaming);
 
             peerConnection.onicecandidate = event => {
-              console.log("@onicecandidate", event);
               if (!event.candidate || !event.candidate.candidate) {
                 streaming.candidate({ completed: true });
               } else {
@@ -60,15 +63,16 @@ export default {
               if (this.bufferingInterval == undefined) {
                 let startBuffer = 0;
                 let lastPosition = 0;
-                this.bufferintInterval = setInterval(() => {
+                this.bufferingInterval = setInterval(() => {
                   if (
                     lastPosition == videoElement.currentTime &&
                     !videoElement.paused
                   ) {
+                    startBuffer += 500;
                     this.$emit("status", "buffering");
-                    if (startBuffer >= 500 * 4) {
-                      clearInterval(this.bitrateInterval);
-                      clearInterval(this.bufferingInterval);
+                    if (startBuffer === 500 * 8) {
+                      startBuffer = 0;
+                      this.$emit("status", "reconnecting");
                       this.connect();
                     }
                   } else {
@@ -103,15 +107,6 @@ export default {
                     .then(answer => {
                       peerConnection.setLocalDescription(answer).then(() => {
                         streaming.start(answer).then(({ body, json }) => {
-                          this.bitrateInterval = setInterval(() => {
-                            // @TODO
-                            var bitrate = peerConnection.getBitrate();
-                            console.log(bitrate);
-                            peerConnection.getStats().then(stats => {
-                              console.info(Array.from(stats.entries()));
-                            });
-                            this.$emit("bitrate", 0);
-                          }, 1000);
                           this.$emit("status", "connected");
                         });
                       });
@@ -121,11 +116,7 @@ export default {
           });
         })
         .catch(err => {
-          console.log("error", err);
           this.$emit("status", err.message);
-          clearInterval(this.bitrateInterval);
-          clearInterval(this.bufferingInterval);
-          this.streaming.destroy();
           setTimeout(() => {
             this.connect();
           }, 1000);

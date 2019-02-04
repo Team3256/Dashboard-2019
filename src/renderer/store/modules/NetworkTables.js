@@ -1,11 +1,12 @@
 const state = {
-  connected: false
+  connected: false,
+  nt: {}
 };
 
 const mutations = {
   UPDATE(state, payload) {
     console.log(state);
-    state[payload.key] = {
+    state.nt[payload.key] = {
       type: payload.type,
       value: payload.val
     };
@@ -15,7 +16,8 @@ const mutations = {
   },
   RESET_STATE(state) {
     state = {
-      connected: state.connected
+      connected: state.connected,
+      nt: {}
     };
   }
 };

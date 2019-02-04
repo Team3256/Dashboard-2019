@@ -1,18 +1,6 @@
 <template>
   <div id="wrapper">
-    <Modal
-      :visible="modalVisible"
-      :showClose="true"
-      @close="modalVisible = false"
-      title="Set NetworkTable Value"
-    >
-      <template slot="content">
-        <p>Hello</p>
-      </template>
-      <template slot="actions">
-        <Button>Set</Button>
-      </template>
-    </Modal>
+    <SetValueModal :visible="modalVisible" @close="modalVisible = false"/>
     <WindowFrame>
       <WindowFrameButton @click="dashClicked">SmartDashboard</WindowFrameButton>
       <WindowFrameButton @click="purePursuitClicked">PurePursuit</WindowFrameButton>
@@ -45,6 +33,7 @@ import CameraStream from "@/components/CameraStream";
 import WindowFrame from "@/components/WindowFrame";
 import WindowFrameButton from "@/components/WindowFrameButton";
 import Button from "@/components/Button";
+import SetValueModal from "@/components/SetValueModal";
 import { remote, ipcRenderer } from "electron";
 import { mapState } from "vuex";
 
@@ -55,7 +44,8 @@ export default {
     WindowFrame,
     WindowFrameButton,
     Button,
-    CameraStream
+    CameraStream,
+    SetValueModal
   },
   data() {
     return {
@@ -157,8 +147,6 @@ export default {
 </script>
 
 <style>
-@import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro");
-
 * {
   box-sizing: border-box;
   margin: 0;
