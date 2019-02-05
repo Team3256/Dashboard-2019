@@ -43,38 +43,36 @@ import * as ntClient from "wpilib-nt-client";
 var client = null;
 var ntListener = null;
 
+store.dispatch("ntConnect");
+
 const ntConnect = () => {
-  if (ntListener) {
-    client.removeListener(ntListener);
-    ntListener = null;
-  }
-
-  if (client) {
-    client.stop();
-    client.destroy();
-    client = null;
-  }
-
-  client = new ntClient.Client();
-
-  client.start((isConnected, err) => {
-    // Displays the error and the state of connection
-    console.log({ isConnected, err });
-    if (isConnected) {
-      store.dispatch("ntConnect");
-    } else {
-      store.dispatch("ntDisconnect");
-      setTimeout(() => {
-        ntConnect();
-      }, 1000);
-    }
-  }, "10.32.56.2");
-
-  ntListener = client.addListener((key, val, type, id) => {
-    //console.log({ key, val, type, id });
-    console.log(store.state.NetworkTables.connected);
-    store.dispatch("updateValue", { key, val, type, id });
-  });
+  // if (ntListener) {
+  //   client.removeListener(ntListener);
+  //   ntListener = null;
+  // }
+  // if (client) {
+  //   client.stop();
+  //   client.destroy();
+  //   client = null;
+  // }
+  // client = new ntClient.Client();
+  // client.start((isConnected, err) => {
+  //   // Displays the error and the state of connection
+  //   console.log({ isConnected, err });
+  //   if (isConnected) {
+  //     store.dispatch("ntConnect");
+  //   } else {
+  //     store.dispatch("ntDisconnect");
+  //     setTimeout(() => {
+  //       ntConnect();
+  //     }, 1000);
+  //   }
+  // }, "10.32.56.2");
+  // ntListener = client.addListener((key, val, type, id) => {
+  //   //console.log({ key, val, type, id });
+  //   console.log(store.state.NetworkTables.connected);
+  //   store.dispatch("updateValue", { key, val, type, id });
+  // });
 };
 
 ntConnect();
@@ -84,15 +82,13 @@ function createWindow() {
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    minWidth: 1920,
-    minHeight: 840,
-    width: 1920,
-    height: 840,
+    width: 1280,
+    height: 720,
     useContentSize: true,
     darkTheme: true,
     devTools: false,
     frame: false,
-    resizable: false
+    resizable: true
   });
 
   mainWindow.setMenu(null);

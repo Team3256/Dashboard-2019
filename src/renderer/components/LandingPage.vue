@@ -16,11 +16,7 @@
         <p class="camera-view-status">{{ statusA }}</p>
       </div>
       <div class="camera-view">
-        <camera-stream
-          :config="{ url: 'ws://10.32.56.50:8188' }"
-          :stream="1"
-          @status="statusB = $event"
-        />
+        <new-camera-stream server="ws://10.32.56.50:8188" :stream="1" @status="statusB = $event"/>
         <p class="camera-view-status">{{ statusB }}</p>
         <div class="line"/>
       </div>
@@ -30,6 +26,7 @@
 
 <script>
 import Modal from "./Modal.vue";
+import NewCameraStream from '@/components/NewCameraStream';
 import CameraStream from "@/components/CameraStream";
 import WindowFrame from "@/components/WindowFrame";
 import WindowFrameButton from "@/components/WindowFrameButton";
@@ -45,6 +42,7 @@ export default {
     WindowFrame,
     WindowFrameButton,
     Button,
+    NewCameraStream,
     CameraStream,
     SetValueModal
   },
@@ -167,8 +165,8 @@ export default {
 }
 
 .camera-view {
-  width: calc(3.4rem * 16);
-  height: calc(3.4rem * 9);
+  width: calc((100vh / 20) * 16);
+  height: calc((100vh / 20) * 9);
   background-color: var(--light-two);
   border-radius: 8px;
   display: flex;
