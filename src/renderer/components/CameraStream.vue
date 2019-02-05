@@ -70,8 +70,9 @@ export default {
                   ) {
                     startBuffer += 500;
                     this.$emit("status", "buffering");
-                    if (startBuffer === 500 * 8) {
+                    if (startBuffer === 500 * 4) {
                       startBuffer = 0;
+                      console.log("im gay");
                       this.$emit("status", "reconnecting");
                       this.connect();
                     }

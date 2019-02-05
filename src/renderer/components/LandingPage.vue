@@ -9,7 +9,7 @@
     <div class="camera-container" v-if="showCameras">
       <div class="camera-view">
         <camera-stream
-          :config="{ url: 'ws://192.168.7.247:8188' }"
+          :config="{ url: 'ws://10.32.56.50:8188' }"
           :stream="2"
           @status="statusA = $event"
         />
@@ -17,11 +17,12 @@
       </div>
       <div class="camera-view">
         <camera-stream
-          :config="{ url: 'ws://192.168.7.247:8188' }"
-          :stream="2"
+          :config="{ url: 'ws://10.32.56.50:8188' }"
+          :stream="1"
           @status="statusB = $event"
         />
         <p class="camera-view-status">{{ statusB }}</p>
+        <div class="line"/>
       </div>
     </div>
   </div>
@@ -186,5 +187,10 @@ export default {
   bottom: 5px;
   z-index: 2;
   opacity: 0.25;
+}
+.line {
+  height: 100%;
+  border: 2px solid #39ff14;
+  position: absolute;
 }
 </style>
