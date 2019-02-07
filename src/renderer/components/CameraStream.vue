@@ -20,6 +20,7 @@ export default {
   },
   methods: {
     connect() {
+      console.log('connect')
       if (this.streaming) {
         this.streaming.destroy();
         clearInterval(this.bufferingInterval);
@@ -29,7 +30,9 @@ export default {
       this.streaming = new StreamingJanusPlugin(console, false);
       this.peerConnection = new RTCPeerConnection();
 
-      this.$emit("connecting", "init");
+      this.$emit("status", "init");
+
+      console.log(this.janus)
 
       const { janus, streaming, peerConnection } = this;
 
@@ -63,16 +66,30 @@ export default {
               if (this.bufferingInterval == undefined) {
                 let startBuffer = 0;
                 let lastPosition = 0;
+
+                var lastBytesReceived = 0;
                 this.bufferingInterval = setInterval(() => {
+                  peerConnection.getStats().then((stats) => {
+                    for (let stat of stats.entries()) {
+                      if (stat[0] == "RTCTransport_video_1") {
+                        const diff = stat[1].bytesReceived - lastBytesReceived;
+                        const mbps = (diff * 8) / (1024 * 1024);
+                        lastBytesReceived = stat[1].bytesReceived;
+                        console.log('diff', diff);
+                        console.log('mbps', mbps);
+                        this.$emit('mbps', mbps)
+                      }
+                    }
+                  })
                   if (
                     lastPosition == videoElement.currentTime &&
                     !videoElement.paused
                   ) {
-                    startBuffer += 500;
+                    
+                    startBuffer += 1000;
                     this.$emit("status", "buffering");
-                    if (startBuffer === 500 * 4) {
+                    if (startBuffer === 1000 * 2) {
                       startBuffer = 0;
-                      console.log("im gay");
                       this.$emit("status", "reconnecting");
                       this.connect();
                     }
@@ -81,7 +98,7 @@ export default {
                   }
 
                   lastPosition = videoElement.currentTime;
-                }, 500);
+                }, 1000);
               }
             };
 
