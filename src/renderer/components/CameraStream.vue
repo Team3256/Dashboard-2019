@@ -68,37 +68,39 @@ export default {
                 let lastPosition = 0;
 
                 var lastBytesReceived = 0;
-                this.bufferingInterval = setInterval(() => {
-                  peerConnection.getStats().then((stats) => {
-                    for (let stat of stats.entries()) {
-                      if (stat[0] == "RTCTransport_video_1") {
-                        const diff = stat[1].bytesReceived - lastBytesReceived;
-                        const mbps = (diff * 8) / (1024 * 1024);
-                        lastBytesReceived = stat[1].bytesReceived;
-                        console.log('diff', diff);
-                        console.log('mbps', mbps);
-                        this.$emit('mbps', mbps)
+                if (this.bufferingInterval == null) {
+                  this.bufferingInterval = setInterval(() => {
+                    peerConnection.getStats().then((stats) => {
+                      for (let stat of stats.entries()) {
+                        if (stat[0] == "RTCTransport_video_1") {
+                          const diff = stat[1].bytesReceived - lastBytesReceived;
+                          const mbps = (diff * 8) / (1024 * 1024);
+                          lastBytesReceived = stat[1].bytesReceived;
+                          console.log('stream', this.stream);
+                          console.log('diff', diff);
+                          console.log('mbps', mbps);
+                          this.$emit('mbps', mbps)
+                        }
                       }
+                    })
+                    if (
+                      lastPosition == videoElement.currentTime &&
+                      !videoElement.paused
+                    ) {
+                      startBuffer += 1000;
+                      this.$emit("status", "buffering");
+                      if (startBuffer === 1000 * 2) {
+                        startBuffer = 0;
+                        this.$emit("status", "reconnecting");
+                        this.connect();
+                      }
+                    } else {
+                      this.$emit("status", "playing");
                     }
-                  })
-                  if (
-                    lastPosition == videoElement.currentTime &&
-                    !videoElement.paused
-                  ) {
-                    
-                    startBuffer += 1000;
-                    this.$emit("status", "buffering");
-                    if (startBuffer === 1000 * 2) {
-                      startBuffer = 0;
-                      this.$emit("status", "reconnecting");
-                      this.connect();
-                    }
-                  } else {
-                    this.$emit("status", "playing");
-                  }
 
-                  lastPosition = videoElement.currentTime;
-                }, 1000);
+                    lastPosition = videoElement.currentTime;
+                  }, 1000);
+                }
               }
             };
 
