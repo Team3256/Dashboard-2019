@@ -30,8 +30,8 @@
     </div>
     <div class="camera-stats-container">
       <p v-bind:class="{'warning': mbpsA >= 2.0}">mbpsA: {{ mbpsA }}</p>
-      <p v-bind:class="{'warning': mbpsB >= 2.0}">mbpsB: {{ mbpsB }}</p>
       <p v-bind:class="{'warning': mbpsA+mbpsB >= 3.0}">Total mbps: {{ Number(mbpsA + mbpsB).toFixed(3) }}</p>
+      <p v-bind:class="{'warning': mbpsB >= 2.0}">mbpsB: {{ mbpsB }}</p>
     </div>
   </div>
 </template>
