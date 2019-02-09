@@ -60,7 +60,7 @@ export default {
   padding-left: 5px;
   padding-right: 5px;
   background-color: var(--dark-two);
-  -webkit-app-region: drag;
+  /*-webkit-app-region: drag;*/
   display: flex;
   z-index: 6;
 }

@@ -31,7 +31,7 @@
     <div class="camera-stats-container">
       <p v-bind:class="{'warning': mbpsA >= 2.0}">mbpsA: {{ mbpsA }}</p>
       <p v-bind:class="{'warning': mbpsB >= 2.0}">mbpsB: {{ mbpsB }}</p>
-      <p v-bind:class="{'warning': mbpsA+mbpsB >= 3.0}">Total mbps: {{ mbpsA + mbpsB }}</p>
+      <p v-bind:class="{'warning': mbpsA+mbpsB >= 3.0}">Total mbps: {{ Number(mbpsA + mbpsB).toFixed(3) }}</p>
     </div>
   </div>
 </template>
@@ -155,7 +155,8 @@ export default {
       menu.popup(remote.getCurrentWindow());
     }
   },
-  mounted() {}
+  mounted() {
+  }
 };
 </script>
 
@@ -171,7 +172,7 @@ export default {
 }
 
 .camera-container {
-  height: 70%;
+  height: 80%;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -179,8 +180,8 @@ export default {
 }
 
 .camera-view {
-  width: calc((100vh / 20) * 16);
-  height: calc((100vh / 20) * 9);
+  width: calc((100vh / 14) * 16);
+  height: calc((100vh / 14) * 9);
   background-color: var(--light-two);
   border-radius: 8px;
   display: flex;

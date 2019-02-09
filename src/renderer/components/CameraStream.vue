@@ -75,11 +75,12 @@ export default {
                         if (stat[0] == "RTCTransport_video_1") {
                           const diff = stat[1].bytesReceived - lastBytesReceived;
                           const mbps = (diff * 8) / (1024 * 1024);
+                          //mbps.toFixed(3);
                           lastBytesReceived = stat[1].bytesReceived;
                           console.log('stream', this.stream);
                           console.log('diff', diff);
                           console.log('mbps', mbps);
-                          this.$emit('mbps', mbps)
+                          this.$emit('mbps', Number(mbps.toFixed(3)));
                         }
                       }
                     })
