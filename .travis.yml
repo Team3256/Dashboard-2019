@@ -3,8 +3,10 @@ node_js:
   - "10"
 os: windows
 
-script:
+install:
   - npm ci
   - npm run build
 
-cache: npm
+cache:
+  directories:
+    - "$HOME/.npm"
