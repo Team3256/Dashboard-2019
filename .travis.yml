@@ -4,7 +4,7 @@ node_js:
 os: windows
 
 script:
-  - npm install
+  - npm ci
   - npm run build
 
 cache: npm
