@@ -5,8 +5,8 @@ const state = {
 
 const mutations = {
   UPDATE(state, payload) {
-    console.log(state);
-    state.nt[payload.key] = {
+    console.log(state.nt);
+    state.nt[payload.key.replace("/SmartDashboard/", "")] = {
       type: payload.type,
       value: payload.val
     };
@@ -15,10 +15,8 @@ const mutations = {
     state.connected = connected;
   },
   RESET_STATE(state) {
-    state = {
-      connected: state.connected,
-      nt: {}
-    };
+    //state.nt = {};
+    console.log(state);
   }
 };
 
@@ -26,6 +24,10 @@ const actions = {
   updateValue({ commit }, data) {
     console.log(data.key);
     commit("UPDATE", data);
+  },
+  ntReset({ commit }) {
+    console.log("oof");
+    commit("RESET_STATE");
   },
   ntConnect({ commit }) {
     commit("UPDATE_CONNECTION", true);

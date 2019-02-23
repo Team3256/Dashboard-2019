@@ -1,13 +1,23 @@
 <template>
-  <div id="wrapper">
+  <div
+    id="wrapper"
+    v-bind:class="{ 'is-blue': alliance =='Blue', 'is-red': alliance =='Red', 'is-none': (alliance != 'Blue' && alliance !='Red') }"
+  >
     <SetValueModal :visible="modalVisible" @close="modalVisible = false"/>
     <WindowFrame>
       <WindowFrameButton @click="dashClicked">SmartDashboard</WindowFrameButton>
       <WindowFrameButton @click="purePursuitClicked">PurePursuit</WindowFrameButton>
       <WindowFrameButton @click="cameraClicked">Camera</WindowFrameButton>
     </WindowFrame>
+    <div class="match-information">
+      <h1>Match {{ match }}</h1>
+      <h1>{{ regional }}</h1>
+    </div>
     <div class="camera-container" v-if="showCameras">
-      <div class="camera-view">
+      <div
+        class="camera-view"
+        v-bind:class="{ 'is-blue-dark': alliance == 'Blue', 'is-red-dark': alliance =='Red', 'is-none-dark': (alliance != 'Blue' && alliance !='Red') }"
+      >
         <camera-stream
           :config="{ url: 'ws://10.32.56.50:8188' }"
           :stream="1"
@@ -17,7 +27,10 @@
         <p class="camera-view-status">{{ statusB }}</p>
         <div class="line"/>
       </div>
-      <div class="camera-view">
+      <div
+        class="camera-view"
+        v-bind:class="{ 'is-blue-dark': alliance == 'Blue', 'is-red-dark': alliance =='Red', 'is-none-dark': (alliance != 'Blue' && alliance !='Red') }"
+      >
         <camera-stream
           :config="{ url: 'ws://10.32.56.50:8188' }"
           :stream="2"
@@ -30,15 +43,17 @@
     </div>
     <div class="camera-stats-container">
       <p v-bind:class="{'warning': mbpsA >= 2.0}">mbpsA: {{ mbpsA }}</p>
-      <p v-bind:class="{'warning': mbpsA+mbpsB >= 3.0}">Total mbps: {{ Number(mbpsA + mbpsB).toFixed(3) }}</p>
+      <p
+        v-bind:class="{'warning': mbpsA+mbpsB >= 3.0}"
+      >Total mbps: {{ Number(mbpsA + mbpsB).toFixed(3) }}</p>
       <p v-bind:class="{'warning': mbpsB >= 2.0}">mbpsB: {{ mbpsB }}</p>
     </div>
+    {{alliance}}
   </div>
 </template>
 
 <script>
 import Modal from "./Modal.vue";
-// import NewCameraStream from '@/components/NewCameraStream';
 import CameraStream from "@/components/CameraStream";
 import WindowFrame from "@/components/WindowFrame";
 import WindowFrameButton from "@/components/WindowFrameButton";
@@ -47,6 +62,8 @@ import SetValueModal from "@/components/SetValueModal";
 import { remote, ipcRenderer } from "electron";
 import { mapState } from "vuex";
 
+import store from "../store";
+
 export default {
   name: "landing-page",
   components: {
@@ -54,7 +71,6 @@ export default {
     WindowFrame,
     WindowFrameButton,
     Button,
-    // NewCameraStream,
     CameraStream,
     SetValueModal
   },
@@ -69,7 +85,17 @@ export default {
     };
   },
   computed: mapState({
-    connected: state => state.NetworkTables.connected
+    connected: state => state.NetworkTables.connected,
+    alliance: state =>
+      state.NetworkTables.nt.alliance
+        ? state.NetworkTables.nt.alliance.value
+        : "",
+    regional: state =>
+      state.NetworkTables.nt.regional
+        ? state.NetworkTables.nt.regional.value
+        : "",
+    match: state =>
+      state.NetworkTables.nt.match ? state.NetworkTables.nt.match.value : -1
   }),
   methods: {
     onClose() {
@@ -99,9 +125,9 @@ export default {
 
       menu.append(
         new MenuItem({
-          label: "Manual Reconnect",
+          label: "Flush Values",
           click() {
-            ipcRenderer.send("reconnectNt");
+            ipcRenderer.send("flushValues");
           }
         })
       );
@@ -155,8 +181,7 @@ export default {
       menu.popup(remote.getCurrentWindow());
     }
   },
-  mounted() {
-  }
+  mounted() {}
 };
 </script>
 
@@ -169,10 +194,44 @@ export default {
 
 #wrapper {
   flex: 1;
+  transition: 1s;
+}
+
+.match-information {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.is-none {
+  background-color: none;
+}
+
+.is-blue {
+  background-color: #0000b2;
+}
+
+.is-red {
+  background-color: #990000;
+}
+
+.is-none-dark {
+  background-color: var(--light-two);
+}
+
+.is-blue-dark {
+  background-color: #000066;
+}
+
+.is-red-dark {
+  background-color: #7f0000;
 }
 
 .camera-container {
-  height: 80%;
+  margin-top: 25px;
+  margin-bottom: 25px;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -180,9 +239,9 @@ export default {
 }
 
 .camera-view {
-  width: calc((100vh / 14) * 16);
-  height: calc((100vh / 14) * 9);
-  background-color: var(--light-two);
+  transition: 1s;
+  width: calc((100vw / 33) * 16);
+  height: calc((100vw / 33) * 9);
   border-radius: 8px;
   display: flex;
   justify-content: center;

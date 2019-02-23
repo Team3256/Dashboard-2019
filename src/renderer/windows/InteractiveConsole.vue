@@ -1,10 +1,10 @@
 <template>
   <div class="draggable-container">
-    <WindowFrame>
+    <WindowFrame :draggable="true">
       <WindowFrameButton @click="widgetsClicked">Widgets</WindowFrameButton>
     </WindowFrame>
     <div class="draggable-parent">
-      <vue-draggable-resizable
+      <!-- <vue-draggable-resizable
         class="draggable"
         :min-width="600"
         :w="600"
@@ -33,6 +33,16 @@
           <Button @click="onStopChart(i)" v-if="chart.listener != null">Stop</Button>
           <Button @click="onResetChart(i)">Reset</Button>
         </div>
+      </vue-draggable-resizable>-->
+      <vue-draggable-resizable
+        :min-height="50"
+        :min-width="50"
+        :max-height="200"
+        :max-width="200"
+        :grid="[40,40]"
+        :parent="true"
+      >
+        <Indicator :value="true" dashboardKey="nice"/>
       </vue-draggable-resizable>
     </div>
   </div>
@@ -42,6 +52,7 @@
 import WindowFrame from "@/components/WindowFrame";
 import WindowFrameButton from "@/components/WindowFrameButton";
 import LineChart from "@/components/console/LineChart.vue";
+import Indicator from "@/components/console/Indicator";
 import Button from "@/components/Button";
 import VueDraggableResizable from "vue-draggable-resizable";
 import "vue-draggable-resizable/dist/VueDraggableResizable.css";
@@ -54,7 +65,8 @@ export default {
     WindowFrameButton,
     LineChart,
     VueDraggableResizable,
-    Button
+    Button,
+    Indicator
   },
   data() {
     return {
@@ -142,7 +154,7 @@ export default {
   flex: 1;
   overflow: none;
 }
-.draggable {
+.draggable-chart {
   padding: 10px;
   border-radius: 4px;
   background-color: var(--dark-one);

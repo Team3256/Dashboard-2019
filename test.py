@@ -27,11 +27,25 @@ sd = NetworkTables.getTable("SmartDashboard")
 sd.putBoolean('isHomed', True)
 sd.putStringArray('AutoOptions', ['Test 1', 'Test 2'])
 sd.putString('ChosenAuto', 'Test 1')
+sd.putString('alliance', 'Red')
 
 i = 0
 while True:
     print('robotTime:', sd.getNumber('robotTime', 'N/A'))
+
+    if (sd.getString('regional', '') == 'Del Mar Regional'):
+        sd.putString('regional', 'Monterey Regional')
+    else:
+        sd.putString('regional', 'Del Mar Regional')
     
-    sd.putNumber('robotTime', i)
-    time.sleep(1)
+    if (sd.getString('alliance', 'Red') == 'Red'):
+        sd.putString('alliance', '')
+    elif (sd.getString('alliance', 'Red') == ''):
+        sd.putString('alliance', 'Blue')
+    else:
+        sd.putString('alliance', 'Red')
+
+    sd.putNumber('match', sd.getNumber('match', 0) + 1)
+    
+    time.sleep(2)
     i += 1

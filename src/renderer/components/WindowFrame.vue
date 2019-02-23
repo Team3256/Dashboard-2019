@@ -1,5 +1,5 @@
 <template>
-  <div class="window-frame">
+  <div class="window-frame" v-bind:class="{ 'window-draggable': draggable }">
     <WindowFrameButton class="window-frame-button" @click="fileClicked">File</WindowFrameButton>
     <slot></slot>
     <div style="flex: 1"/>
@@ -18,6 +18,7 @@ export default {
     CloseIcon,
     WindowFrameButton
   },
+  props: ["draggable"],
   methods: {
     fileClicked() {
       const { Menu, MenuItem } = remote;
@@ -60,9 +61,11 @@ export default {
   padding-left: 5px;
   padding-right: 5px;
   background-color: var(--dark-two);
-  /*-webkit-app-region: drag;*/
   display: flex;
   z-index: 6;
+}
+.window-draggable {
+  -webkit-app-region: drag;
 }
 .close-button {
   display: flex;
