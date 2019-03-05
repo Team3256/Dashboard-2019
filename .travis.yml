@@ -1,9 +1,0 @@
-language: node_js
-cache: npm
-node_js:
-  - "10"
-os: windows
-
-script:
-  - npm ci
-  - npm run build
