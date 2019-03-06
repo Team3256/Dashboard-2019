@@ -46,6 +46,8 @@ while True:
         sd.putString('alliance', 'Red')
 
     sd.putNumber('match', sd.getNumber('match', 0) + 1)
+
+    print(sd.getString('regional', ''))
     
     time.sleep(2)
     i += 1

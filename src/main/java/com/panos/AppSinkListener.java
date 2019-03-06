@@ -1,4 +1,9 @@
+package com.panos;
+
 import java.nio.ByteBuffer;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 
 import org.freedesktop.gstreamer.Buffer;
 import org.freedesktop.gstreamer.FlowReturn;
@@ -11,9 +16,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
-
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 
 
 public class AppSinkListener implements AppSink.NEW_SAMPLE {
@@ -46,7 +48,7 @@ public class AppSinkListener implements AppSink.NEW_SAMPLE {
             // Writes the buffer to the byteArray
             byteBuffer.get(byteArray);
             actualFrame = convertBytesToImage(byteArray, width, height);
-            // Writes the new Image to the ImageContainer. If an other part of the programm wants to do something like displaying or storing
+            // Writes the new Image to the com.panos.ImageContainer. If an other part of the programm wants to do something like displaying or storing
             //with the frames it can set up a changeListener to get a chance to do something with the newest frame.
             imageContainer.setImage(actualFrame);
             buffer.unmap();
