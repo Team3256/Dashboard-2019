@@ -20,7 +20,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.0</version>
                 <configuration>
-                    <release>11</release>
+                    <release>8</release>
                 </configuration>
             </plugin>
             <plugin>
@@ -63,16 +63,6 @@
             <groupId>org.freedesktop.gstreamer</groupId>
             <artifactId>gst1-java-core</artifactId>
             <version>0.9.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-controls</artifactId>
-            <version>11.0.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-fxml</artifactId>
-            <version>11.0.2</version>
         </dependency>
     </dependencies>
 
