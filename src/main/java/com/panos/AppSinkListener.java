@@ -48,7 +48,7 @@ public class AppSinkListener implements AppSink.NEW_SAMPLE {
             // Writes the buffer to the byteArray
             byteBuffer.get(byteArray);
             actualFrame = convertBytesToImage(byteArray, width, height);
-            // Writes the new Image to the com.panos.ImageContainer. If an other part of the programm wants to do something like displaying or storing
+            // Writes the new Image to the com.panos.ImageContainer. If an other part of the program wants to do something like displaying or storing
             //with the frames it can set up a changeListener to get a chance to do something with the newest frame.
             imageContainer.setImage(actualFrame);
             buffer.unmap();

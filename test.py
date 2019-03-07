@@ -49,5 +49,5 @@ while True:
 
     print(sd.getString('regional', ''))
     
-    time.sleep(2)
+    time.sleep(4)
     i += 1

@@ -13,10 +13,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
@@ -40,6 +37,9 @@ public class Controller {
     @FXML
     private Text cameraStatus;
 
+    @FXML
+    private HBox cameraViewContainer;
+
     private AppSink videosink;
     private Pipeline pipe;
     private Bin bin;
@@ -47,6 +47,8 @@ public class Controller {
     private StringBuilder caps;
     private ImageContainer imageContainer;
 
+    private String regional;
+    private double match;
 
     public void fadeBackgroundToColor(final int red, final int green, final int blue, final int prevRed, final int prevGreen, final int prevBlue) {
         Platform.runLater(() -> {
@@ -72,14 +74,18 @@ public class Controller {
         });
     }
 
+    public void updateTitle() {
+        Platform.runLater(() -> {
+            cameraStatus.setText(regional + " - Match " + (int) match);
+        });
+    }
+
     public Controller() {
-        //NetworkTableInstance.getDefault().startClientTeam(3256);
         NetworkTableInstance.getDefault().startClient("localhost");
 
         NetworkTableInstance.getDefault().addConnectionListener(connectionInfo -> {
             NetworkTable table = connectionInfo.getInstance().getTable("SmartDashboard");
-            System.out.println(table.getKeys());
-            System.out.println(table.getEntry("alliance").getString("oof"));
+
             table.addEntryListener("alliance", (networkTable, s, networkTableEntry, networkTableValue, i) -> {
                 if (networkTableValue.getValue().equals("Red")) {
                     fadeBackgroundToColor(153, 0, 0, 0, 0, 102);
@@ -87,9 +93,15 @@ public class Controller {
                     fadeBackgroundToColor(0, 0, 102, 153, 0, 0);
                 }
             }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-            System.out.println(connectionInfo.connected);
+
             table.addEntryListener("regional", (networkTable, s, networkTableEntry, networkTableValue, i) -> {
-                Platform.runLater(() -> cameraStatus.setText(networkTableValue.getString()));
+                this.regional = networkTableValue.getString();
+                updateTitle();
+            }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+
+            table.addEntryListener("match", (networkTable, s, networkTableEntry, networkTableValue, i) -> {
+                this.match = networkTableValue.getDouble();
+                updateTitle();
             }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
         }, true);
 
@@ -112,29 +124,14 @@ public class Controller {
         pipe.addMany(bin, videosink);
         Pipeline.linkMany(bin, videosink);
 
-        //fadeBackgroundToColor(0, 0, 102);
-
         imageContainer = GstListener.getImageContainer();
-        imageContainer.addListener(new ChangeListener<Image>() {
-            @Override
-            public void changed(ObservableValue<? extends Image> observable, Image oldValue, final
-            Image newValue) {
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        cameraView.setImage(newValue);
-                    }
-                });
-            }
-        });
+        imageContainer.addListener((observable, oldValue, newValue) -> Platform.runLater(() -> cameraView.setImage(newValue)));
 
         bus = pipe.getBus();
-        bus.connect(new Bus.MESSAGE() {
-            @Override
-            public void busMessage(Bus arg0, Message arg1) {
-                cameraStatus.setText(arg1.getType().getName());
-            }
-        });
+        bus.connect((Bus.MESSAGE) (arg0, arg1) -> cameraStatus.setText(arg1.getType().getName()));
         pipe.play();
+
+        Platform.runLater(() -> cameraView.fitHeightProperty().bind(cameraViewContainer.heightProperty()));
+
     }
 }

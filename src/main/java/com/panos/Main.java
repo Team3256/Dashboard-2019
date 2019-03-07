@@ -22,13 +22,6 @@ import javafx.stage.Stage;
 
 
 public class Main extends Application{
-    private ImageView imageView;
-
-    public Main() {
-
-
-    }
-
     @Override
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("main.fxml"));
