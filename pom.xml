@@ -60,6 +60,11 @@
         <!-- https://mvnrepository.com/artifact/org.freedesktop.gstreamer/gst1-java-core -->
         <!-- https://mvnrepository.com/artifact/org.freedesktop.gstreamer/gst1-java-core -->
         <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>5.2.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.freedesktop.gstreamer</groupId>
             <artifactId>gst1-java-core</artifactId>
             <version>0.9.4</version>

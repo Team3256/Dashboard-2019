@@ -47,7 +47,7 @@ public class Controller {
     private StringBuilder caps;
     private ImageContainer imageContainer;
 
-    private String regional;
+    private double regional;
     private double match;
 
     public void fadeBackgroundToColor(final int red, final int green, final int blue, final int prevRed, final int prevGreen, final int prevBlue) {
@@ -76,33 +76,39 @@ public class Controller {
 
     public void updateTitle() {
         Platform.runLater(() -> {
-            cameraStatus.setText(regional + " - Match " + (int) match);
+            cameraStatus.setText(regional + " - " + (int) match);
         });
     }
 
     public Controller() {
-        NetworkTableInstance.getDefault().startClient("localhost");
+        NetworkTableInstance.getDefault().startClientTeam(3256);
 
         NetworkTableInstance.getDefault().addConnectionListener(connectionInfo -> {
+            NetworkTable fms = connectionInfo.getInstance().getTable("FMSInfo");
             NetworkTable table = connectionInfo.getInstance().getTable("SmartDashboard");
 
-            table.addEntryListener("alliance", (networkTable, s, networkTableEntry, networkTableValue, i) -> {
-                if (networkTableValue.getValue().equals("Red")) {
+            System.out.println(fms.getKeys());
+
+            fms.addEntryListener("IsRedAlliance", (networkTable, s, networkTableEntry, networkTableValue, i) -> {
+                Platform.runLater(() -> {
+                    System.out.println(networkTableValue.getBoolean());
+                });
+                if (networkTableValue.getBoolean()) {
                     fadeBackgroundToColor(153, 0, 0, 0, 0, 102);
                 } else {
                     fadeBackgroundToColor(0, 0, 102, 153, 0, 0);
                 }
-            }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+            }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate | EntryListenerFlags.kImmediate);
 
-            table.addEntryListener("regional", (networkTable, s, networkTableEntry, networkTableValue, i) -> {
-                this.regional = networkTableValue.getString();
+            fms.addEntryListener("StationNumber", (networkTable, s, networkTableEntry, networkTableValue, i) -> {
+                this.regional = networkTableValue.getDouble();
                 updateTitle();
-            }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+            }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate | EntryListenerFlags.kImmediate);
 
-            table.addEntryListener("match", (networkTable, s, networkTableEntry, networkTableValue, i) -> {
+            table.addEntryListener("MatchNumber", (networkTable, s, networkTableEntry, networkTableValue, i) -> {
                 this.match = networkTableValue.getDouble();
                 updateTitle();
-            }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+            }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate | EntryListenerFlags.kImmediate);
         }, true);
 
         videosink = new AppSink("GstVideoComponent");
@@ -128,10 +134,9 @@ public class Controller {
         imageContainer.addListener((observable, oldValue, newValue) -> Platform.runLater(() -> cameraView.setImage(newValue)));
 
         bus = pipe.getBus();
-        bus.connect((Bus.MESSAGE) (arg0, arg1) -> cameraStatus.setText(arg1.getType().getName()));
+        bus.connect((Bus.MESSAGE) (arg0, arg1) -> {});
         pipe.play();
 
         Platform.runLater(() -> cameraView.fitHeightProperty().bind(cameraViewContainer.heightProperty()));
-
     }
 }
