@@ -1,5 +1,6 @@
 package com.panos;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -40,13 +41,23 @@ public class AppSinkListener implements AppSink.NEW_SAMPLE {
             Structure capsStruct = sample.getCaps().getStructure(0);
             int width = capsStruct.getInteger("width");
             int height = capsStruct.getInteger("height");
-            if (width != lastWidth || height != lastHeigth){
+            if (width != lastWidth || height != lastHeigth) {
                 lastWidth = width;
                 lastHeigth = height;
                 byteArray = new byte[width * height * 4];
             }
             // Writes the buffer to the byteArray
             byteBuffer.get(byteArray);
+            Devices.connections.forEach(connection -> {
+                new Thread(() -> {
+                    try {
+                        connection.outputStream.write(byteArray);
+                        connection.outputStream.flush();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }).start();
+            });
             actualFrame = convertBytesToImage(byteArray, width, height);
             // Writes the new Image to the com.panos.ImageContainer. If an other part of the program wants to do something like displaying or storing
             //with the frames it can set up a changeListener to get a chance to do something with the newest frame.

@@ -1,5 +1,12 @@
 package com.panos;
 
+import com.dd.plist.NSObject;
+import com.dd.plist.PropertyListParser;
+import com.mogaleaf.usbmuxd.api.IUsbMuxd;
+import com.mogaleaf.usbmuxd.api.UsbMuxdFactory;
+import com.mogaleaf.usbmuxd.api.exception.UsbMuxdException;
+import com.mogaleaf.usbmuxd.api.model.UsbMuxdConnection;
+import com.mogaleaf.usbmuxd.protocol.PlistMessageService;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.stage.Screen;
@@ -10,6 +17,9 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /*
  * The main idea is to create a pipeline that has an appsink to display the images.
@@ -22,6 +32,9 @@ import javafx.stage.Stage;
 
 
 public class Main extends Application{
+
+    static IUsbMuxd usbMuxdDriver = UsbMuxdFactory.getInstance();
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("main.fxml"));
@@ -31,6 +44,29 @@ public class Main extends Application{
         primaryStage.setX(0);
         primaryStage.setY(0);
         primaryStage.show();
+        usbMuxdDriver.registerDeviceConnectionListener(m -> {
+            switch (m.type) {
+                case Add:
+                    try {
+                        Devices.connections.add(usbMuxdDriver.connectToDevice(5000, m.device));
+                    } catch (UsbMuxdException e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println("Device connected with ID: " + m.device.deviceId);
+                    System.out.println("Product ID: " + m.device.productId);
+                    break;
+                case Remove:
+                    System.out.println("Removed device with ID: " + m.device.deviceId);
+                    break;
+            }
+        });
+        new Thread(() -> {
+            try {
+                usbMuxdDriver.startListening();
+            } catch (UsbMuxdException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     public static void main(String[] args) {
