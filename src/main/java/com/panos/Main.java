@@ -47,15 +47,12 @@ public class Main extends Application{
         usbMuxdDriver.registerDeviceConnectionListener(m -> {
             switch (m.type) {
                 case Add:
-                    try {
-                        Devices.connections.add(usbMuxdDriver.connectToDevice(5000, m.device));
-                    } catch (UsbMuxdException e) {
-                        e.printStackTrace();
-                    }
                     System.out.println("Device connected with ID: " + m.device.deviceId);
                     System.out.println("Product ID: " + m.device.productId);
+                    Devices.devices.add(m.device);
                     break;
                 case Remove:
+                    Devices.devices.remove(m.device);
                     System.out.println("Removed device with ID: " + m.device.deviceId);
                     break;
             }

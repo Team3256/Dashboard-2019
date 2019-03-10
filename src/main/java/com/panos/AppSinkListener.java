@@ -6,6 +6,11 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 
+import com.mogaleaf.usbmuxd.api.IUsbMuxd;
+import com.mogaleaf.usbmuxd.api.UsbMuxdFactory;
+import com.mogaleaf.usbmuxd.api.exception.UsbMuxdException;
+import com.mogaleaf.usbmuxd.api.model.Device;
+import com.mogaleaf.usbmuxd.api.model.UsbMuxdConnection;
 import org.freedesktop.gstreamer.Buffer;
 import org.freedesktop.gstreamer.FlowReturn;
 import org.freedesktop.gstreamer.Sample;
@@ -31,6 +36,8 @@ public class AppSinkListener implements AppSink.NEW_SAMPLE {
         return imageContainer;
     }
 
+    static IUsbMuxd usbMuxdDriver = UsbMuxdFactory.getInstance();
+
     @Override
     public FlowReturn newSample(AppSink appSink) {
         // Try to get a sample
@@ -48,16 +55,22 @@ public class AppSinkListener implements AppSink.NEW_SAMPLE {
             }
             // Writes the buffer to the byteArray
             byteBuffer.get(byteArray);
-            Devices.connections.forEach(connection -> {
-                new Thread(() -> {
-                    try {
-                        connection.outputStream.write(byteArray);
-                        connection.outputStream.flush();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }).start();
-            });
+            new Thread(() -> Devices.devices.forEach(device -> {
+                System.out.println("Sending to device: " + device.deviceId);
+                try {
+                    UsbMuxdConnection connection = usbMuxdDriver.connectToDevice(5000, device);
+                    new Thread(() -> {
+                        try {
+                            connection.outputStream.write(byteArray);
+                            connection.outputStream.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }).start();
+                } catch (UsbMuxdException e) {
+                    e.printStackTrace();
+                }
+            })).start();
             actualFrame = convertBytesToImage(byteArray, width, height);
             // Writes the new Image to the com.panos.ImageContainer. If an other part of the program wants to do something like displaying or storing
             //with the frames it can set up a changeListener to get a chance to do something with the newest frame.

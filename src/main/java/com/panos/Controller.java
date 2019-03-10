@@ -81,35 +81,35 @@ public class Controller {
     }
 
     public Controller() {
-        NetworkTableInstance.getDefault().startClientTeam(3256);
-
-        NetworkTableInstance.getDefault().addConnectionListener(connectionInfo -> {
-            NetworkTable fms = connectionInfo.getInstance().getTable("FMSInfo");
-            NetworkTable table = connectionInfo.getInstance().getTable("SmartDashboard");
-
-            System.out.println(fms.getKeys());
-
-            fms.addEntryListener("IsRedAlliance", (networkTable, s, networkTableEntry, networkTableValue, i) -> {
-                Platform.runLater(() -> {
-                    System.out.println(networkTableValue.getBoolean());
-                });
-                if (networkTableValue.getBoolean()) {
-                    fadeBackgroundToColor(153, 0, 0, 0, 0, 102);
-                } else {
-                    fadeBackgroundToColor(0, 0, 102, 153, 0, 0);
-                }
-            }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate | EntryListenerFlags.kImmediate);
-
-            fms.addEntryListener("StationNumber", (networkTable, s, networkTableEntry, networkTableValue, i) -> {
-                this.regional = networkTableValue.getDouble();
-                updateTitle();
-            }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate | EntryListenerFlags.kImmediate);
-
-            table.addEntryListener("MatchNumber", (networkTable, s, networkTableEntry, networkTableValue, i) -> {
-                this.match = networkTableValue.getDouble();
-                updateTitle();
-            }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate | EntryListenerFlags.kImmediate);
-        }, true);
+//        NetworkTableInstance.getDefault().startClientTeam(3256);
+//
+//        NetworkTableInstance.getDefault().addConnectionListener(connectionInfo -> {
+//            NetworkTable fms = connectionInfo.getInstance().getTable("FMSInfo");
+//            NetworkTable table = connectionInfo.getInstance().getTable("SmartDashboard");
+//
+//            System.out.println(fms.getKeys());
+//
+//            fms.addEntryListener("IsRedAlliance", (networkTable, s, networkTableEntry, networkTableValue, i) -> {
+//                Platform.runLater(() -> {
+//                    System.out.println(networkTableValue.getBoolean());
+//                });
+//                if (networkTableValue.getBoolean()) {
+//                    fadeBackgroundToColor(153, 0, 0, 0, 0, 102);
+//                } else {
+//                    fadeBackgroundToColor(0, 0, 102, 153, 0, 0);
+//                }
+//            }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate | EntryListenerFlags.kImmediate);
+//
+//            fms.addEntryListener("StationNumber", (networkTable, s, networkTableEntry, networkTableValue, i) -> {
+//                this.regional = networkTableValue.getDouble();
+//                updateTitle();
+//            }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate | EntryListenerFlags.kImmediate);
+//
+//            table.addEntryListener("MatchNumber", (networkTable, s, networkTableEntry, networkTableValue, i) -> {
+//                this.match = networkTableValue.getDouble();
+//                updateTitle();
+//            }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate | EntryListenerFlags.kImmediate);
+//        }, true);
 
         videosink = new AppSink("GstVideoComponent");
         videosink.set("emit-signals", true);
