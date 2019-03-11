@@ -115,17 +115,17 @@ public class Controller {
         videosink.set("emit-signals", true);
         AppSinkListener GstListener = new AppSinkListener();
         videosink.connect(GstListener);
-        caps = new StringBuilder("video/x-raw, ");
+        caps = new StringBuilder("video/x-h264,stream-format=byte-stream,alignment=nal");
         // JNA creates ByteBuffer using native byte order, set masks according to that.
-        if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
-            caps.append("format=BGRx");
-        } else {
-            caps.append("format=xRGB");
-        }
+//        if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
+//            caps.append("format=BGRx");
+//        } else {
+//            caps.append("format=xRGB");
+//        }
         videosink.setCaps(new Caps(caps.toString()));
         videosink.set("max-buffers", 5000);
         videosink.set("drop", true);
-        bin = Bin.launch("udpsrc port=5808 caps=\"application/x-rtp\" ! rtph264depay ! avdec_h264 ! videoconvert", true);
+        bin = Gst.parseBinFromDescription("udpsrc port=5808 caps=\"application/x-rtp\" ! rtph264depay", true);
         pipe = new Pipeline();
         pipe.addMany(bin, videosink);
         Pipeline.linkMany(bin, videosink);

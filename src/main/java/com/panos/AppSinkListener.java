@@ -1,6 +1,7 @@
 package com.panos;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -44,37 +45,50 @@ public class AppSinkListener implements AppSink.NEW_SAMPLE {
         Sample sample = appSink.pullSample();
         Buffer buffer = sample.getBuffer();
         ByteBuffer byteBuffer = buffer.map(false);
-        if (byteBuffer != null){
-            Structure capsStruct = sample.getCaps().getStructure(0);
-            int width = capsStruct.getInteger("width");
-            int height = capsStruct.getInteger("height");
-            if (width != lastWidth || height != lastHeigth) {
-                lastWidth = width;
-                lastHeigth = height;
-                byteArray = new byte[width * height * 4];
-            }
-            // Writes the buffer to the byteArray
+        if (byteBuffer != null) {
+            byteArray = new byte[byteBuffer.remaining()];
+//            Structure capsStruct = sample.getCaps().getStructure(0);
+//            int width = capsStruct.getInteger("width");
+//            int height = capsStruct.getInteger("height");
+//            if (width != lastWidth || height != lastHeigth) {
+//                lastWidth = width;
+//                lastHeigth = height;
+//                byteArray = new byte[width * height * 4];
+//            }
+//            // Writes the buffer to the byteArray
             byteBuffer.get(byteArray);
-            new Thread(() -> Devices.devices.forEach(device -> {
+            String length = String.format("%08x", byteArray.length);
+            System.out.println(length);
+            System.out.println(length.substring(0, 2));
+            System.out.println(length.substring(2, 4));
+            System.out.println(length.substring(4, 6));
+            System.out.println(length.substring(6, 8));
+            byteArray[0] = (byte) Integer.parseInt(length.substring(0, 2), 16);
+            byteArray[1] = (byte) Integer.parseInt(length.substring(2, 4), 16);
+            byteArray[2] = (byte) Integer.parseInt(length.substring(4, 6), 16);
+            byteArray[3] = (byte) Integer.parseInt(length.substring(6, 8), 16);
+            for (int i = 0; i < 4; i++) {
+                System.out.print((byteArray[i]) + ", ");
+            }
+            System.out.println("");
+            Devices.devices.forEach(device -> {
                 System.out.println("Sending to device: " + device.deviceId);
                 try {
                     UsbMuxdConnection connection = usbMuxdDriver.connectToDevice(5000, device);
-                    new Thread(() -> {
-                        try {
-                            connection.outputStream.write(byteArray);
-                            connection.outputStream.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }).start();
+                    try {
+                        connection.outputStream.write(byteArray);
+                        connection.outputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 } catch (UsbMuxdException e) {
                     e.printStackTrace();
                 }
-            })).start();
-            actualFrame = convertBytesToImage(byteArray, width, height);
-            // Writes the new Image to the com.panos.ImageContainer. If an other part of the program wants to do something like displaying or storing
-            //with the frames it can set up a changeListener to get a chance to do something with the newest frame.
-            imageContainer.setImage(actualFrame);
+            });
+//            actualFrame = convertBytesToImage(byteArray, width, height);
+//            // Writes the new Image to the com.panos.ImageContainer. If an other part of the program wants to do something like displaying or storing
+//            //with the frames it can set up a changeListener to get a chance to do something with the newest frame.
+//            imageContainer.setImage(actualFrame);
             buffer.unmap();
         }
         sample.dispose();
@@ -88,5 +102,4 @@ public class AppSinkListener implements AppSink.NEW_SAMPLE {
         pw.setPixels(0, 0, width, height, PixelFormat.getByteBgraInstance(), pixels, 0, width *4);
         return img;
     }
-
 }

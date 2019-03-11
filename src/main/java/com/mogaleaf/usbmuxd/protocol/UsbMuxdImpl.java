@@ -86,6 +86,7 @@ public abstract class UsbMuxdImpl implements IUsbMuxd {
 	public UsbMuxdConnection connectToDevice(int port, Device device, long time, TimeUnit timeUnit) throws UsbMuxdException {
 		try {
 			Socket connectionSocket = getSocketImpl();
+			System.out.println(getAddress());
 			connectionSocket.connect(getAddress());
 			byte[] connectByteMessage = PlistMessageService.buildConnectMsg(device.deviceId, port);
 			InputStream inputStream = connectionSocket.getInputStream();
