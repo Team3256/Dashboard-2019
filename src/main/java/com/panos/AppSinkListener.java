@@ -1,6 +1,6 @@
 package com.panos;
 
-import java.io.IOException;
+import java.io.*;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.time.Instant;
@@ -39,6 +39,30 @@ public class AppSinkListener implements AppSink.NEW_SAMPLE {
 
     static IUsbMuxd usbMuxdDriver = UsbMuxdFactory.getInstance();
 
+    private String[] types = new String[] {
+            "Unspecified",
+            "Coded slice of a non-IDR picture",
+            "Coded slice data partition A",
+            "Coded slice data partition B",
+            "Coded slice data partition C",
+            "Coded slice of an IDR picture",
+            "Supplemental enhancement information (SEI)",
+            "Sequence parameter set",
+            "Picture parameter set",
+            "Access unit delimiter",
+            "End of sequence",
+            "End of stream",
+            "Filler data",
+            "Sequence parameter set extension",
+            "Prefix NAL unit",
+            "Subset sequence parameter set",
+            "Depth parameter set",
+            "Reserved",
+            "Coded slice of an auxiliary coded picture without partitioning",
+            "Coded slice extension",
+            "Coded slice extension for a depth view component or a 3D-AVC texture view component"
+    };
+
     @Override
     public FlowReturn newSample(AppSink appSink) {
         // Try to get a sample
@@ -58,19 +82,20 @@ public class AppSinkListener implements AppSink.NEW_SAMPLE {
 //            // Writes the buffer to the byteArray
             byteBuffer.get(byteArray);
             String length = String.format("%08x", byteArray.length);
-            System.out.println(length);
-            System.out.println(length.substring(0, 2));
-            System.out.println(length.substring(2, 4));
-            System.out.println(length.substring(4, 6));
-            System.out.println(length.substring(6, 8));
-            byteArray[0] = (byte) Integer.parseInt(length.substring(0, 2), 16);
-            byteArray[1] = (byte) Integer.parseInt(length.substring(2, 4), 16);
-            byteArray[2] = (byte) Integer.parseInt(length.substring(4, 6), 16);
-            byteArray[3] = (byte) Integer.parseInt(length.substring(6, 8), 16);
-            for (int i = 0; i < 4; i++) {
-                System.out.print((byteArray[i]) + ", ");
+            System.out.println("Length: 0x" + length + " (" + byteArray.length + ")");
+
+            for (int i = 4; i < byteArray.length; i++) {
+                if (
+                        byteArray[i-4] == 0 &&
+                        byteArray[i-3] == 0 &&
+                        byteArray[i-2] == 0 &&
+                        byteArray[i-1] == 1
+                ) {
+                    System.out.println("Header Type: " + types[byteArray[i]&0x1F] + " (" + (byteArray[i]&0x1F) + ")");
+                    System.out.println();
+                }
             }
-            System.out.println("");
+
             Devices.devices.forEach(device -> {
                 System.out.println("Sending to device: " + device.deviceId);
                 try {

@@ -117,11 +117,13 @@ public class Controller {
         videosink.connect(GstListener);
         caps = new StringBuilder("video/x-h264,stream-format=byte-stream,alignment=nal");
         // JNA creates ByteBuffer using native byte order, set masks according to that.
-//        if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
-//            caps.append("format=BGRx");
-//        } else {
-//            caps.append("format=xRGB");
-//        }
+        if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
+            System.out.println("LITTLE");
+            //caps.append("format=BGRx");
+        } else {
+            System.out.println("BIG");
+            //caps.append("format=xRGB");
+        }
         videosink.setCaps(new Caps(caps.toString()));
         videosink.set("max-buffers", 5000);
         videosink.set("drop", true);
