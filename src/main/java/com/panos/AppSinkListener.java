@@ -111,21 +111,24 @@ public class AppSinkListener implements AppSink.NEW_SAMPLE {
                 ) {
                     System.out.println("Header Type: " + types[byteArray[i]&0x1F] + " (" + (byteArray[i]&0x1F) + ")");
                     System.out.println();
+                    if ((byteArray[i] & 0x1F) == 9) {
+                        return FlowReturn.OK;
+                    }
                 }
             }
 
-//            if (count > 50) {
-//                System.out.println(count);
-//                System.exit(0);
-//            }
-//
-//            try {
-//                os.write(byteArray);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
+            if (count > 200) {
+                System.out.println(count);
+                System.exit(0);
+            }
 
-            //count++;
+            try {
+                os.write(byteArray);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            count++;
 
             Devices.devices.forEach(device -> {
                 System.out.println("Sending to device: " + device.deviceId);
