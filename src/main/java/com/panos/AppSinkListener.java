@@ -63,6 +63,24 @@ public class AppSinkListener implements AppSink.NEW_SAMPLE {
             "Coded slice extension for a depth view component or a 3D-AVC texture view component"
     };
 
+    DataOutputStream os = null;
+
+    public AppSinkListener() {
+        File file = new File("/Users/john/Desktop/dump.h264");
+        try {
+            if (file.createNewFile()) {
+                System.out.println("File doesn't exist, so one was created");
+            } else {
+                System.out.println("File exists, will overwrite existing data");
+            }
+            os = new DataOutputStream(new FileOutputStream(file, false));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    int count = 0;
+
     @Override
     public FlowReturn newSample(AppSink appSink) {
         // Try to get a sample
@@ -96,6 +114,19 @@ public class AppSinkListener implements AppSink.NEW_SAMPLE {
                 }
             }
 
+//            if (count > 50) {
+//                System.out.println(count);
+//                System.exit(0);
+//            }
+//
+//            try {
+//                os.write(byteArray);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+
+            //count++;
+
             Devices.devices.forEach(device -> {
                 System.out.println("Sending to device: " + device.deviceId);
                 try {
@@ -110,6 +141,7 @@ public class AppSinkListener implements AppSink.NEW_SAMPLE {
                     e.printStackTrace();
                 }
             });
+
 //            actualFrame = convertBytesToImage(byteArray, width, height);
 //            // Writes the new Image to the com.panos.ImageContainer. If an other part of the program wants to do something like displaying or storing
 //            //with the frames it can set up a changeListener to get a chance to do something with the newest frame.

@@ -110,6 +110,10 @@ public class Controller {
 //                updateTitle();
 //            }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate | EntryListenerFlags.kImmediate);
 //        }, true);
+        fadeBackgroundToColor(153, 0, 0, 0, 0, 102);
+        Platform.runLater(() -> {
+            cameraStatus.setText("Monterey Regional - Match 10");
+        });
 
         videosink = new AppSink("GstVideoComponent");
         videosink.set("emit-signals", true);
@@ -127,7 +131,7 @@ public class Controller {
         videosink.setCaps(new Caps(caps.toString()));
         videosink.set("max-buffers", 5000);
         videosink.set("drop", true);
-        bin = Gst.parseBinFromDescription("udpsrc port=5808 caps=\"application/x-rtp\" ! rtph264depay", true);
+        bin = Gst.parseBinFromDescription("udpsrc port=5808 caps=\"application/x-rtp\" ! rtph264depay ! h264parse", true);
         pipe = new Pipeline();
         pipe.addMany(bin, videosink);
         Pipeline.linkMany(bin, videosink);
