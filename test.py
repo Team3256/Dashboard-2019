@@ -37,15 +37,17 @@ while True:
         sd.putString('regional', 'Monterey Regional')
     else:
         sd.putString('regional', 'Del Mar Regional')
-    
+
     if (sd.getString('alliance', 'Red') == 'Red'):
-        sd.putString('alliance', '')
-    elif (sd.getString('alliance', 'Red') == ''):
         sd.putString('alliance', 'Blue')
     else:
         sd.putString('alliance', 'Red')
 
     sd.putNumber('match', sd.getNumber('match', 0) + 1)
+
+    if ((i % 3) == 0):
+        print('nice')
+        sd.putBoolean('displayAutoPath', not sd.getBoolean('displayAutoPath', True))
 
     print(sd.getString('regional', ''))
     

@@ -1,5 +1,9 @@
 package com.panos;
 
+import com.mogaleaf.usbmuxd.api.IUsbMuxd;
+import com.mogaleaf.usbmuxd.api.UsbMuxdFactory;
+import com.mogaleaf.usbmuxd.api.exception.UsbMuxdException;
+import com.mogaleaf.usbmuxd.api.model.UsbMuxdConnection;
 import edu.wpi.first.networktables.*;
 import edu.wpi.first.networktables.ConnectionInfo;
 import javafx.animation.Animation;
@@ -21,6 +25,7 @@ import javafx.util.Duration;
 import org.freedesktop.gstreamer.*;
 import org.freedesktop.gstreamer.elements.AppSink;
 
+import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.function.Consumer;
 
@@ -49,6 +54,8 @@ public class Controller {
 
     private double regional;
     private double match;
+
+    static IUsbMuxd usbMuxdDriver = UsbMuxdFactory.getInstance();
 
     public void fadeBackgroundToColor(final int red, final int green, final int blue, final int prevRed, final int prevGreen, final int prevBlue) {
         Platform.runLater(() -> {
@@ -80,36 +87,74 @@ public class Controller {
         });
     }
 
+    public void sendToDevices(String input) {
+        Devices.devices.forEach(device -> {
+            System.out.println("Sending to device: " + device.deviceId);
+            try {
+                UsbMuxdConnection connection = usbMuxdDriver.connectToDevice(5000, device);
+                try {
+                    connection.outputStream.write(input.getBytes());
+                    connection.outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } catch (UsbMuxdException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
     public Controller() {
-//        NetworkTableInstance.getDefault().startClientTeam(3256);
-//
-//        NetworkTableInstance.getDefault().addConnectionListener(connectionInfo -> {
-//            NetworkTable fms = connectionInfo.getInstance().getTable("FMSInfo");
-//            NetworkTable table = connectionInfo.getInstance().getTable("SmartDashboard");
-//
-//            System.out.println(fms.getKeys());
-//
-//            fms.addEntryListener("IsRedAlliance", (networkTable, s, networkTableEntry, networkTableValue, i) -> {
-//                Platform.runLater(() -> {
-//                    System.out.println(networkTableValue.getBoolean());
-//                });
-//                if (networkTableValue.getBoolean()) {
-//                    fadeBackgroundToColor(153, 0, 0, 0, 0, 102);
-//                } else {
-//                    fadeBackgroundToColor(0, 0, 102, 153, 0, 0);
-//                }
-//            }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate | EntryListenerFlags.kImmediate);
-//
-//            fms.addEntryListener("StationNumber", (networkTable, s, networkTableEntry, networkTableValue, i) -> {
-//                this.regional = networkTableValue.getDouble();
-//                updateTitle();
-//            }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate | EntryListenerFlags.kImmediate);
-//
-//            table.addEntryListener("MatchNumber", (networkTable, s, networkTableEntry, networkTableValue, i) -> {
-//                this.match = networkTableValue.getDouble();
-//                updateTitle();
-//            }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate | EntryListenerFlags.kImmediate);
-//        }, true);
+        //NetworkTableInstance.getDefault().startClientTeam(3256);
+
+        NetworkTableInstance.getDefault().startClient("127.0.0.1");
+
+        NetworkTableInstance.getDefault().addConnectionListener(connectionInfo -> {
+            NetworkTable fms = connectionInfo.getInstance().getTable("FMSInfo");
+            NetworkTable table = connectionInfo.getInstance().getTable("SmartDashboard");
+
+            System.out.println(fms.getKeys());
+
+            fms.addEntryListener("IsRedAlliance", (networkTable, s, networkTableEntry, networkTableValue, i) -> {
+                Platform.runLater(() -> {
+                    System.out.println(networkTableValue.getBoolean());
+                });
+                if (networkTableValue.getBoolean()) {
+                    fadeBackgroundToColor(153, 0, 0, 0, 0, 102);
+                } else {
+                    fadeBackgroundToColor(0, 0, 102, 153, 0, 0);
+                }
+            }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate | EntryListenerFlags.kImmediate);
+
+            fms.addEntryListener("StationNumber", (networkTable, s, networkTableEntry, networkTableValue, i) -> {
+                this.regional = networkTableValue.getDouble();
+                updateTitle();
+            }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate | EntryListenerFlags.kImmediate);
+
+            table.addEntryListener("MatchNumber", (networkTable, s, networkTableEntry, networkTableValue, i) -> {
+                this.match = networkTableValue.getDouble();
+                updateTitle();
+            }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate | EntryListenerFlags.kImmediate);
+
+            table.addEntryListener("alliance", (networkTable, s, networkTableEntry, networkTableValue, i) -> {
+                Platform.runLater(() -> {
+                    System.out.println(networkTableValue.getString());
+                });
+                sendToDevices("alliance:" + networkTableValue.getString());
+                if (networkTableValue.getString().equals("Red")) {
+                    fadeBackgroundToColor(153, 0, 0, 0, 0, 102);
+                } else {
+                    fadeBackgroundToColor(0, 0, 102, 153, 0, 0);
+                }
+            }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate | EntryListenerFlags.kImmediate);
+
+            table.addEntryListener("displayAutoPath", (networkTable, s, networkTableEntry, networkTableValue, i) -> {
+                Platform.runLater(() -> {
+                    System.out.println(networkTableValue.getBoolean());
+                });
+                sendToDevices("displayAutoPath:" + networkTableValue.getBoolean());
+            }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate | EntryListenerFlags.kImmediate);
+        }, true);
         fadeBackgroundToColor(153, 0, 0, 0, 0, 102);
         Platform.runLater(() -> {
             cameraStatus.setText("Monterey Regional - Match 10");
@@ -119,19 +164,19 @@ public class Controller {
         videosink.set("emit-signals", true);
         AppSinkListener GstListener = new AppSinkListener();
         videosink.connect(GstListener);
-        caps = new StringBuilder("video/x-h264,stream-format=byte-stream,alignment=nal");
+        caps = new StringBuilder("video/x-raw, ");
         // JNA creates ByteBuffer using native byte order, set masks according to that.
         if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
             System.out.println("LITTLE");
-            //caps.append("format=BGRx");
+            caps.append("format=BGRx");
         } else {
             System.out.println("BIG");
-            //caps.append("format=xRGB");
+            caps.append("format=xRGB");
         }
         videosink.setCaps(new Caps(caps.toString()));
         videosink.set("max-buffers", 5000);
         videosink.set("drop", true);
-        bin = Gst.parseBinFromDescription("udpsrc port=5808 caps=\"application/x-rtp\" ! rtph264depay ! h264parse", true);
+        bin = Gst.parseBinFromDescription("udpsrc port=5808 caps=\"application/x-rtp\" ! rtph264depay ! avdec_h264 ! videoconvert", true);
         pipe = new Pipeline();
         pipe.addMany(bin, videosink);
         Pipeline.linkMany(bin, videosink);
